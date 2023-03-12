@@ -24,8 +24,7 @@ import_sas_namcs2019puf = function(sas_data, sas_formats_data, r_out) {
 
   options(prettysurvey.import.bool_levels = c("yes", "no")
           , prettysurvey.import.bool_true = "yes"
-          , prettysurvey.import.bool_false = "no"
-  )
+          , prettysurvey.import.bool_false = "no")
   d1 = import_sas(sas_data, sas_formats_data, formats = "attr")
 
   sdo = svydesign(ids = ~ CPSUM

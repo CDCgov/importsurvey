@@ -23,7 +23,7 @@ Import SAS data into R, with survey design variables the same as those in NSLTCP
 \dontrun{
 import_sas_rcc2018puf(
 sas_data = "final2018rcc_puf.sas7bdat"
-, sas_formats_data = "formats_dataset.sas7bdat"
+, sas_formats_data = "rcc_formats_dataset.sas7bdat"
 , r_out = "rcc_2018_puf.rds")
 }
 }

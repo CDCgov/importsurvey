@@ -12,7 +12,7 @@
 #' \dontrun{
 #' import_sas_rcc2018puf(
 #' sas_data = "final2018rcc_puf.sas7bdat"
-#' , sas_formats_data = "formats_dataset.sas7bdat"
+#' , sas_formats_data = "rcc_formats_dataset.sas7bdat"
 #' , r_out = "rcc_2018_puf.rds")
 #' }
 import_sas_rcc2018puf = function(sas_data, sas_formats_data, r_out) {
@@ -21,18 +21,16 @@ import_sas_rcc2018puf = function(sas_data, sas_formats_data, r_out) {
 
   options(importsurvey.bool_levels = c("yes", "no", "missing")
           , importsurvey.bool_true = "yes"
-          , importsurvey.bool_false = "no"
-  )
+          , importsurvey.bool_false = "no")
   d1 = import_sas(sas_data, sas_formats_data, formats = "name")
 
-  stop("!!")
-  sdo = svydesign(ids = ~ CPSUM
-    , strata = ~ CSTRATM
-    , weights = ~ PATWT
+  sdo = svydesign(ids = ~ RCCID
+    , strata = ~ PUFSTRATA
+    , weights = ~ FACWT
     , data = d1)
 
   message("\n*** Please verify that the correct survey design variables are used (ids, strata, weights): ")
   print(sdo)
 
-##  saveRDS(sdo, r_out)
+  saveRDS(sdo, r_out)
 }
