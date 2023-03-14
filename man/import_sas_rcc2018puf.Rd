@@ -4,7 +4,7 @@
 \alias{import_sas_rcc2018puf}
 \title{Import SAS data into R, with survey design variables the same as those in NSLTCP RCC 2018 PUF.}
 \usage{
-import_sas_rcc2018puf(sas_data, sas_formats_data, r_out)
+import_sas_rcc2018puf(sas_data, sas_formats_data, r_out, label = "")
 }
 \arguments{
 \item{sas_data}{SAS survey data file}
@@ -12,6 +12,8 @@ import_sas_rcc2018puf(sas_data, sas_formats_data, r_out)
 \item{sas_formats_data}{SAS formats data file (produced with \verb{PROC FORMAT} with the \code{CNTLOUT} option)}
 
 \item{r_out}{name of a new R data file}
+
+\item{label}{name of the survey}
 }
 \value{
 (Nothing.)
@@ -21,10 +23,10 @@ Import SAS data into R, with survey design variables the same as those in NSLTCP
 }
 \examples{
 \dontrun{
-import_sas_rcc2018puf(
-sas_data = "final2018rcc_puf.sas7bdat"
+import_sas_rcc2018puf(sas_data = "rcc2018puf.sas7bdat"
 , sas_formats_data = "rcc_formats_dataset.sas7bdat"
-, r_out = "rcc_2018_puf.rds")
+, r_out = "rcc_2018_puf.rds"
+, label = "RCC 2018 PUF")
 }
 }
 \seealso{

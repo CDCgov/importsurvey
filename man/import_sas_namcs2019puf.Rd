@@ -4,7 +4,7 @@
 \alias{import_sas_namcs2019puf}
 \title{Import SAS data into R, with survey design variables the same as those in NAMCS 2019 PUF.}
 \usage{
-import_sas_namcs2019puf(sas_data, sas_formats_data, r_out)
+import_sas_namcs2019puf(sas_data, sas_formats_data, r_out, label = "")
 }
 \arguments{
 \item{sas_data}{SAS survey data file}
@@ -12,6 +12,8 @@ import_sas_namcs2019puf(sas_data, sas_formats_data, r_out)
 \item{sas_formats_data}{SAS formats data file (produced with \verb{PROC FORMAT} with the \code{CNTLOUT} option)}
 
 \item{r_out}{name of a new R data file}
+
+\item{label}{name of the survey}
 }
 \value{
 (Nothing.)
@@ -23,11 +25,13 @@ Import SAS data into R, with survey design variables the same as those in NAMCS 
 \dontrun{
 import_sas_namcs2019puf(sas_data = "namcs2019_sas.sas7bdat"
 , sas_formats_data = "namcs_formats_dataset.sas7bdat"
-, r_out = "namcs_2019_puf.rds")
+, r_out = "namcs_2019_puf.rds"
+, label = "NAMCS 2019 PUF")
 
 import_sas_namcs2019puf(sas_data = "ed2020_sas.sas7bdat"
 , sas_formats_data = "ed_formats_dataset.sas7bdat"
-, r_out = "ed_2020_puf.rds")
+, r_out = "ed_2020_puf.rds"
+, label = "ED 2020 PUF")
 }
 }
 \seealso{

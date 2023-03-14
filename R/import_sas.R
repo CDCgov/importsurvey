@@ -17,19 +17,17 @@
 #' \dontrun{
 #' d1 = import_sas(sas_data, sas_formats_data)
 #' }
-import_sas = function(sas_data, sas_formats_data
-                , formats = "attr") {
+import_sas = function(sas_data, sas_formats_data, formats) {
   assert_that(formats %in% c("attr", "name"))
   df1 = read_sas(sas_formats_data) %>% as.data.frame
   assert_that(all(df1$START == df1$END))
   df1 = df1[,c("FMTNAME", "START", "LABEL")]
   df1$START %<>% trimws
   df1$LABEL %<>% trimws
-  assert_that(all(!is.na(df1)))
+  assert_that( noNA(df1))
 
   d1 = read_sas(sas_data) %>% as.data.frame
-##  assert_that(all(!is.na(d1)))
-  c.nofmt = c.2v = c.log = c()
+  c.nofmt = c.2v = c.log = c.fewf = c()
   for (ii in names(d1)) {
     fmt = switch(formats
                  , attr = attr(d1[,ii], "format.sas")
@@ -40,7 +38,6 @@ import_sas = function(sas_data, sas_formats_data
          || (formats == "name" && !(fmt %in% df1$FMTNAME) ) ) {
       c.nofmt %<>% c(ii)
       d1[,ii] %<>% .c2f
-##      assert_that(all(!is.na( d1[,ii] )))
       next
     }
     if (fmt %>% startsWith("$")) {
@@ -64,7 +61,11 @@ import_sas = function(sas_data, sas_formats_data
             , labels = f1$LABEL
             , exclude = NULL)
           attr(d1[,ii], "label") = lbl
-          assert_that(all(!is.na( d1[,ii] )))
+          assert_that( noNA( d1[,ii] ))
+
+          if ( nlevels(droplevels(d1[,ii])) / nrow(f1) <= 0.3 ) {
+            c.fewf %<>% c(ii)
+          }
         } else {
           # special values
           vn = paste0(ii, ".special")
@@ -90,6 +91,10 @@ import_sas = function(sas_data, sas_formats_data
           attr(d1[,vn], "label") = paste(lbl, "(defined levels)")
           assert_that(all(!is.na( d1[,vn] )))
 
+          if ( nlevels(droplevels(d1[,vn])) / length(lbls) <= 0.3 ) {
+            c.fewf %<>% c(vn)
+          }
+
           # no special values
           vn = paste0(ii, ".nospecial")
           assert_that(!(vn %in% names(d1)))
@@ -101,7 +106,7 @@ import_sas = function(sas_data, sas_formats_data
           # raw
           d1[,ii] %<>% .c2f
           attr(d1[,ii], "label") = paste(lbl, "(raw - use caution)")
-          assert_that(all(!is.na( d1[,ii] )))
+          assert_that(noNA( d1[,ii] ))
 
           c.2v %<>% c(ii)
         }
@@ -118,9 +123,9 @@ import_sas = function(sas_data, sas_formats_data
   options(importsurvey.bool_levels = op.bl, importsurvey.bool_true = op.bt)
   for (ii in names(d1)) {
     if (is.factor(d1[,ii])
-        && nlevels(d1[,ii]) == length(getOption("importsurvey.bool_levels"))) {
+        && nlevels(d1[,ii]) <= length(getOption("importsurvey.bool_levels"))) {
       lvl = levels(d1[,ii]) %>% tolower %>% trimws
-      if(lvl %>% setequal( getOption("importsurvey.bool_levels") )) {
+      if( is_subset(lvl, getOption("importsurvey.bool_levels")) ) {
         c.log %<>% c(ii)
         lbl = attr(d1[,ii], "label")
         newvr = rep(NA, nrow(d1))
@@ -138,15 +143,19 @@ import_sas = function(sas_data, sas_formats_data
 
   if (length(c.nofmt) > 0) {
     tmp = c.nofmt %>% paste(collapse=", ")
-    paste("Variables that have no format:", tmp) %>% message
+    paste("\nVariables that have no format:", tmp) %>% message
   }
   if (length(c.2v) > 0) {
     tmp = c.2v %>% paste(collapse=", ")
-    paste("Format applies only to some values, created multiple version of variable:", tmp) %>% message
+    paste("\nFormat applies only to some values, created multiple version of variable:", tmp) %>% message
   }
   if (length(c.log) > 0) {
     tmp = c.log %>% paste(collapse=", ")
-    paste("Yes/no variable - converted to logical:", tmp) %>% message
+    paste("\nYes/no variable - converted to logical:", tmp) %>% message
+  }
+  if (length(c.fewf) > 0) {
+    tmp = c.fewf %>% paste(collapse=", ")
+    paste("\nMany category values not used - possible error:", tmp) %>% message
   }
 
   assert_that(

@@ -4,7 +4,7 @@
 \alias{import_sas}
 \title{Import SAS data into R}
 \usage{
-import_sas(sas_data, sas_formats_data, formats = "attr")
+import_sas(sas_data, sas_formats_data, formats)
 }
 \arguments{
 \item{sas_data}{SAS survey data file}
