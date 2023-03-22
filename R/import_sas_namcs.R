@@ -27,18 +27,20 @@ import_sas_namcs2019puf = function(sas_data, sas_formats_data, r_out,
               , msg = paste0("Output file ", r_out, " already exists."))
   assert_that(is.string(label), nzchar(label))
 
-  options(prettysurvey.import.bool_levels = c("yes", "no")
-          , prettysurvey.import.bool_true = "yes"
-          , prettysurvey.import.bool_false = "no")
-  d1 = import_sas(sas_data, sas_formats_data, formats = "attr")
+  d1 = import_sas(sas_data, sas_formats_data, formats = "attr"
+                  , bool_levels = c("yes", "no")
+                  , bool_true = "yes"
+                  , bool_false = "no"
+                  )
 
   sdo = svydesign(ids = ~ CPSUM
                   , strata = ~ CSTRATM
                   , weights = ~ PATWT
                   , data = d1)
   attr(sdo, "label") = label
+  attr(sdo$call, "srcref") = NULL
 
-  message("\n*** Please verify that the correct survey design variables are used (ids, strata, weights): ")
+  message("\n*** Please verify that the correct survey design variables are used (ids, strata, weights, fpc, etc.): ")
   print(sdo)
 
   saveRDS(sdo, r_out)

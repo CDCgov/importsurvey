@@ -22,21 +22,22 @@ import_sas_rcc2018puf = function(sas_data, sas_formats_data, r_out
               , msg = paste0("Output file ", r_out, " already exists."))
   assert_that(is.string(label), nzchar(label))
 
-  options(importsurvey.bool_levels = c("yes", "no", "missing")
-          , importsurvey.bool_true = "yes"
-          , importsurvey.bool_false = "no")
-  d1 = import_sas(sas_data, sas_formats_data, formats = "name")
+  d1 = import_sas(sas_data, sas_formats_data, formats = "name"
+                  , bool_levels = c("yes", "no", "missing")
+                  , bool_true = "yes"
+                  , bool_false = "no"
+                  )
 
   sdo = svydesign(
-    ## ids = ~ RCCID # Not including based on discussion w/ the data team.
     ids = ~ 1
     , strata = ~ PUFSTRATA
     , fpc = ~ PUFPOPFAC
     , weights = ~ FACWT
     , data = d1)
   attr(sdo, "label") = label
+  attr(sdo$call, "srcref") = NULL
 
-  message("\n*** Please verify that the correct survey design variables are used (ids, strata, weights): ")
+  message("\n*** Please verify that the correct survey design variables are used (ids, strata, weights, fpc, etc.): ")
   print(sdo)
 
   saveRDS(sdo, r_out)

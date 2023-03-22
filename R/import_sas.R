@@ -3,10 +3,18 @@
 #' @param sas_data  SAS survey data file
 #' @param sas_formats_data    SAS formats data file (produced with CNTLOUT option of PROC FORMAT)
 #' @param formats how are formats specified?
+#' @param bool_levels variables that have these levels should be converted from factor (categorical) to logical
+#' @param bool_true level(s) of these variables that should be set
+#' to `TRUE`
+#' @param bool_false level(s) of these variables that should be set
+#' to `FALSE`
 #'
 #' `formats`: how are formats specified?
 #' * "attr": in `attr(*, "format.sas")`
 #' * "name": same as the variable name
+#'
+#' Levels in `bool_levels` that are neither in `bool_true` or
+#' `bool_false` are set to `NA`.
 #'
 #' @return `data.frame`. If this is a complex survey, use `svydesign` to
 #' create a survey design object.
@@ -17,8 +25,18 @@
 #' \dontrun{
 #' d1 = import_sas(sas_data, sas_formats_data)
 #' }
-import_sas = function(sas_data, sas_formats_data, formats) {
+import_sas = function(sas_data, sas_formats_data, formats
+              , bool_levels = c("yes", "no")
+              , bool_true = "yes"
+              , bool_false = "no"
+              ) {
   assert_that(formats %in% c("attr", "name"))
+  bool_levels %<>% tolower %>% trimws
+  bool_true %<>% tolower %>% trimws
+  bool_false %<>% tolower %>% trimws
+  assert_that(all(bool_true %in% bool_levels)
+              , all(bool_false %in% bool_levels))
+
   df1 = read_sas(sas_formats_data) %>% as.data.frame
   assert_that(all(df1$START == df1$END))
   df1 = df1[,c("FMTNAME", "START", "LABEL")]
@@ -89,7 +107,7 @@ import_sas = function(sas_data, sas_formats_data, formats) {
                        , labels = lbls
                        , exclude = NULL)
           attr(d1[,vn], "label") = paste(lbl, "(defined levels)")
-          assert_that(all(!is.na( d1[,vn] )))
+          assert_that( noNA(d1[,vn]))
 
           if ( nlevels(droplevels(d1[,vn])) / length(lbls) <= 0.3 ) {
             c.fewf %<>% c(vn)
@@ -118,23 +136,16 @@ import_sas = function(sas_data, sas_formats_data, formats) {
     }
   }
 
-  op.bl = getOption("importsurvey.bool_levels") %>% tolower %>% trimws
-  op.bt = getOption("importsurvey.bool_true") %>% tolower %>% trimws
-  options(importsurvey.bool_levels = op.bl, importsurvey.bool_true = op.bt)
   for (ii in names(d1)) {
-    if (is.factor(d1[,ii])
-        && nlevels(d1[,ii]) <= length(getOption("importsurvey.bool_levels"))) {
+    if (is.factor(d1[,ii]) && nlevels(d1[,ii]) <= length(bool_levels)) {
       lvl = levels(d1[,ii]) %>% tolower %>% trimws
-      if( is_subset(lvl, getOption("importsurvey.bool_levels")) ) {
+      if( is_subset(lvl, bool_levels) ) {
         c.log %<>% c(ii)
         lbl = attr(d1[,ii], "label")
+        tmp = d1[,ii] %>% tolower %>% trimws
         newvr = rep(NA, nrow(d1))
-
-        idx = which(tolower(d1[,ii]) == getOption("importsurvey.bool_true") )
-        newvr[idx] = TRUE
-        idx = which(tolower(d1[,ii]) == getOption("importsurvey.bool_false") )
-        newvr[idx] = FALSE
-
+        newvr[tmp %in% bool_true] = TRUE
+        newvr[tmp %in% bool_false] = FALSE
         d1[,ii] = newvr
         attr(d1[,ii], "label") = lbl
       }

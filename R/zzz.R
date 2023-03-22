@@ -6,10 +6,3 @@
               , "\n\nYou've just loaded ", pkgname, "."
   )
 }
-
-.onLoad = function(libname, pkgname) {
-  options(importsurvey.bool_levels = c("yes", "no")
-    , importsurvey.bool_true = "yes"
-    , importsurvey.bool_false = "no"
-  )
-}

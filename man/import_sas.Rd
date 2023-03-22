@@ -4,20 +4,38 @@
 \alias{import_sas}
 \title{Import SAS data into R}
 \usage{
-import_sas(sas_data, sas_formats_data, formats)
+import_sas(
+  sas_data,
+  sas_formats_data,
+  formats,
+  bool_levels = c("yes", "no"),
+  bool_true = "yes",
+  bool_false = "no"
+)
 }
 \arguments{
 \item{sas_data}{SAS survey data file}
 
 \item{sas_formats_data}{SAS formats data file (produced with CNTLOUT option of PROC FORMAT)}
 
-\item{formats}{how are formats specified?
+\item{formats}{how are formats specified?}
+
+\item{bool_levels}{variables that have these levels should be converted from factor (categorical) to logical}
+
+\item{bool_true}{level(s) of these variables that should be set
+to \code{TRUE}}
+
+\item{bool_false}{level(s) of these variables that should be set
+to \code{FALSE}
 
 \code{formats}: how are formats specified?
 \itemize{
 \item "attr": in \verb{attr(*, "format.sas")}
 \item "name": same as the variable name
-}}
+}
+
+Levels in \code{bool_levels} that are neither in \code{bool_true} or
+\code{bool_false} are set to \code{NA}.}
 }
 \value{
 \code{data.frame}. If this is a complex survey, use \code{svydesign} to
