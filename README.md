@@ -24,7 +24,7 @@ This is a basic example which shows you how to solve a common problem:
 library(importsurvey)
 #> 
 #> There are 3 related packages:
-#> * prettysurvey: functions for tabulating survey estimates
+#> * surveytable: functions for tabulating survey estimates
 #> * nchsdata: public use files (PUFs) from the the National Center for Health Statistics (NCHS)
 #> * importsurvey: functions for importing data into R
 #> 

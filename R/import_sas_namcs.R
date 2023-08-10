@@ -6,7 +6,6 @@
 #' @param label   name of the survey
 #'
 #' @return (Nothing.)
-#' @family import
 #' @export
 #'
 #' @examples

@@ -18,7 +18,6 @@
 #'
 #' @return `data.frame`. If this is a complex survey, use `svydesign` to
 #' create a survey design object.
-#' @family import
 #' @export
 #'
 #' @examples
