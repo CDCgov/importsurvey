@@ -8,10 +8,13 @@
 #' to `TRUE`
 #' @param bool_false level(s) of these variables that should be set
 #' to `FALSE`
+#' @param formats_func only needed if `formats` = "funcname"
 #'
-#' `formats`: how are formats specified?
+#' The argument `formats` determines how formats are specified:
 #' * "attr": in `attr(*, "format.sas")`
 #' * "name": same as the variable name
+#' * "funcname": formats_func("x") is a function that returns the format name
+#' for variable "x"
 #'
 #' Levels in `bool_levels` that are neither in `bool_true` or
 #' `bool_false` are set to `NA`.
@@ -28,8 +31,10 @@ import_sas = function(sas_data, sas_formats_data, formats
               , bool_levels = c("yes", "no")
               , bool_true = "yes"
               , bool_false = "no"
+              , formats_func = NULL
               ) {
-  assert_that(formats %in% c("attr", "name"))
+  assert_that(formats %in% c("attr", "name", "funcname"))
+  if (formats == "funcname") assert_that(is.function(formats_func))
   bool_levels %<>% tolower %>% trimws
   bool_true %<>% tolower %>% trimws
   bool_false %<>% tolower %>% trimws
@@ -49,10 +54,11 @@ import_sas = function(sas_data, sas_formats_data, formats
     fmt = switch(formats
                  , attr = attr(d1[,ii], "format.sas")
                  , name = ii
+                 , funcname = formats_func(ii)
                  , stop("Unknown formats type."))
 
     if ( (formats == "attr" && is.null(fmt))
-         || (formats == "name" && !(fmt %in% df1$FMTNAME) ) ) {
+         || (formats %in% c("name", "funcname") && !(fmt %in% df1$FMTNAME) ) ) {
       c.nofmt %<>% c(ii)
       d1[,ii] %<>% .c2f
       next

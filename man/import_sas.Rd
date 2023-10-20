@@ -10,7 +10,8 @@ import_sas(
   formats,
   bool_levels = c("yes", "no"),
   bool_true = "yes",
-  bool_false = "no"
+  bool_false = "no",
+  formats_func = NULL
 )
 }
 \arguments{
@@ -26,12 +27,16 @@ import_sas(
 to \code{TRUE}}
 
 \item{bool_false}{level(s) of these variables that should be set
-to \code{FALSE}
+to \code{FALSE}}
 
-\code{formats}: how are formats specified?
+\item{formats_func}{only needed if \code{formats} = "funcname"
+
+The argument \code{formats} determines how formats are specified:
 \itemize{
 \item "attr": in \verb{attr(*, "format.sas")}
 \item "name": same as the variable name
+\item "funcname": formats_func("x") is a function that returns the format name
+for variable "x"
 }
 
 Levels in \code{bool_levels} that are neither in \code{bool_true} or
@@ -49,9 +54,3 @@ Import SAS data into R
 d1 = import_sas(sas_data, sas_formats_data)
 }
 }
-\seealso{
-Other import: 
-\code{\link{import_sas_namcs2019puf}()},
-\code{\link{import_sas_rcc2018puf}()}
-}
-\concept{import}

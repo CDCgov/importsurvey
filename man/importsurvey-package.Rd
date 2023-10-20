@@ -4,9 +4,9 @@
 \name{importsurvey-package}
 \alias{importsurvey}
 \alias{importsurvey-package}
-\title{importsurvey: Import data into R, with an application to NCHS}
+\title{importsurvey: Import data into R, with an application to the National Center for Health Statistics (NCHS)}
 \description{
-Import data into R, with an application to NCHS.
+Import data into R, with an application to the National Center for Health Statistics (NCHS).
 }
 \author{
 \strong{Maintainer}: Alex Strashny \email{AStrashny@cdc.gov}

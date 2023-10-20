@@ -3,6 +3,7 @@
 export(import_sas)
 export(import_sas_namcs2019puf)
 export(import_sas_rcc2018puf)
+export(import_sas_rccsu2018puf)
 import(assertthat)
 import(haven)
 import(magrittr)

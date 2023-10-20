@@ -29,9 +29,3 @@ import_sas_rcc2018puf(sas_data = "rcc2018puf.sas7bdat"
 , label = "RCC 2018 PUF")
 }
 }
-\seealso{
-Other import: 
-\code{\link{import_sas_namcs2019puf}()},
-\code{\link{import_sas}()}
-}
-\concept{import}

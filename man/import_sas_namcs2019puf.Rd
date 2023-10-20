@@ -34,9 +34,3 @@ import_sas_namcs2019puf(sas_data = "ed2020_sas.sas7bdat"
 , label = "ED 2020 PUF")
 }
 }
-\seealso{
-Other import: 
-\code{\link{import_sas_rcc2018puf}()},
-\code{\link{import_sas}()}
-}
-\concept{import}
