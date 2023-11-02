@@ -7,8 +7,8 @@
 <!-- badges: end -->
 
 `importsurvey` imports surveys into R that are currently in other
-formats. The public versions of surveys that have already been imported
-are stored in `nchsdata`. The imported surveys can be analyzed using the
+formats. Public versions of surveys that have already been imported are
+stored in `nchsdata`. The imported surveys can be analyzed using the
 `survey` or the `surveytable` packages.
 
 ## Installation
@@ -31,15 +31,17 @@ Find the documentation for `importsurvey` here:
 
 In all, there are 3 related packages:
 
--   [`surveytable`](https://cdcgov.github.io/surveytable/): functions
-    for tabulating survey estimates
--   `nchsdata`: public use files (PUFs) from the the National Center for
-    Health Statistics (NCHS)
--   `importsurvey`: functions for importing data into R
+-   [surveytable: functions for tabulating survey
+    estimates](https://cdcgov.github.io/surveytable/)
+-   [nchsdata: public use files (PUFs) from the the National Center for
+    Health Statistics (NCHS)](https://cdcgov.github.io/nchsdata/)
+-   [importsurvey: functions for importing data into
+    R](https://cdcgov.github.io/importsurvey/)
 
 `importsurvey` imports surveys into R that are currently in other
-formats. The public versions of surveys that have already been imported
-are stored in `nchsdata`. Tables can be generated using `surveytable`.
+formats. Public versions of surveys that have already been imported are
+stored in `nchsdata`. Tables of estimates can be generated using
+`surveytable`.
 
 <!-- CDC standard text -->
 

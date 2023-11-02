@@ -8,6 +8,14 @@
 \description{
 Import data into R, with an application to the National Center for Health Statistics (NCHS).
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://cdcgov.github.io/importsurvey}
+  \item \url{https://github.com/CDCgov/importsurvey}
+}
+
+}
 \author{
 \strong{Maintainer}: Alex Strashny \email{AStrashny@cdc.gov}
 
