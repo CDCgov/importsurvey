@@ -17,3 +17,9 @@ Imports:
 Depends: 
     R (>= 2.10)
 URL: https://cdcgov.github.io/importsurvey, https://github.com/CDCgov/importsurvey
+Suggests: 
+    knitr,
+    rmarkdown,
+    nchsdata,
+    surveytable
+VignetteBuilder: knitr

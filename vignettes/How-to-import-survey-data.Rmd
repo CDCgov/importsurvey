@@ -1,0 +1,183 @@
+---
+title: "How to import survey data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How-to-import-survey-data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This article describes how to import survey data from SAS into R. Non-survey data can be imported as well. 
+
+# SAS data file
+
+The first step is to obtain the SAS data file that you would like to import. In this example, we will use a file called `namcs2019_sas.sas7bdat`. This is the SAS data file for the National Ambulatory Medical Care Survey (NAMCS) 2019 Public Use File (PUF). For more information, see `nchsdata::namcs2019`. The data file can be obtained here: https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/NAMCS/sas/namcs2019_sas.zip
+
+# SAS formats data file
+
+Next, you need to create a SAS formats data file. This is a SAS data file with information about formats. It should not be confused with a SAS catalog file. This formats data file is generated in SAS using the `PROC FORMAT` command with the `CNTLOUT` option, as follows:
+
+```SAS
+LIBNAME project 'c:\output';
+PROC FORMAT CNTLOUT=project.formats_dataset;
+   VALUE AGERF   
+       1 ='Under 15 years'
+       2 ='15-24 years'
+       3 ='25-44 years'
+       4 ='45-64 years'
+       5 ='65-74 years'
+       6 ='75 years and over'
+;
+/* ... */
+RUN;
+```
+
+SAS saves the formats data file in the folder specified by the `LIBNAME` command. 
+
+# Look for a specialized function
+
+In `importsurvey`, there are several functions named `import_sas_*`. See if any of these functions is specifically designed for importing your survey _or_ another survey that has the same survey design variables. 
+
+To see the available function: 
+
+```r
+library(importsurvey)
+help(package = "importsurvey")
+```
+
+Since we are trying to import NAMCS 2019 PUF, we notice a function called `import_sas_namcs2019puf`. When we check help for this function, we see that this is exactly the correct function to use. 
+
+`import_sas_namcs2019puf` can be used to import NAMCS 2019 PUF _or_ any other survey that has the same survey design variables. For example, the same function can be used to import another survey, called NHAMCS ED 2020 PUF. (For more info on this survey, see `nchsdata::ed2020`.)
+
+If a specialized function does not already exist, we will cover that scenario below.
+
+# Use the specialized function
+
+Specify the following information:
+* the SAS survey data file
+* the SAS formats data file
+* the name of an `.rds` file to be created
+* a short name for the survey
+
+```r
+import_sas_namcs2019puf(sas_data = "namcs2019_sas.sas7bdat"
+, sas_formats_data = "namcs_formats_dataset.sas7bdat"
+, r_out = "namcs_2019_puf.rds"
+, label = "NAMCS 2019 PUF")
+```
+The survey name, specified by the `label` argument, is important. It is used by functions in the `surveytable` package to allow the user to verify that they are analyzing the correct survey. 
+
+The above command will likely print some messages. Check all messages to see whether anything is unexpected, which could indicate a mistake. 
+
+**Variables that have no format.** Did you intend for these variables to not have a format? In this list, you expect to see survey design variables (such as `PATWT`) and numeric variables (such as `NUMMED`).
+
+**Format applies only to some values, created multiple version of variable.**
+
+Some numeric variables contain actual values as well as certain "special values", which often indicate some kind of missingness. For example, consider the `BMI` (body mass index) variable. Some observations have the actual value of BMI, such as 25, while other observations have a "special value", which is one of the following: -9, meaning “Missing data”; -7, meaning “Not calculated”; or -5, meaning “Height or weight outside acceptable ranges”.
+
+When `importsurvey` encounters such a variable, in addition to the original variable, it creates two more variables, as follows. The analyst should use the version of the variable that is appropriate to their specific analysis. 
+
+* `X.nospecial`: a numeric variable in which all values specified in the formats are converted to missing values (`NA`) – only the “non-special” values are retained; and 
+* `X.special`: a factor variable in which all values **not** specified in the formats are given a value of “Other”. (For BMI, a categorical variable, with categories being “Missing data”, “Not calculated”, “Height or weight outside acceptable ranges”, and "Other".)
+
+Thus, for BMI, one would generally not use the `BMI` variable directly, because it contains both values of BMI as well as special values. `BMI.nospecial` could be used in numeric calculations, such as to calculate the mean of known values. `BMI.special` could be used to calculate the percentages of each of the special values. 
+
+**Yes/no variable - converted to logical.** These variables have been converted to logical variables, with values being `TRUE`, `FALSE`, or `NA`. 
+
+They can be used in logical expressions, which makes using the data easier. For example, to select visits in which the expected source of payment is both Medicare and Medicaid, instead of typing `PAYMCARE == "Yes" & PAYMCAID == "Yes"` one only needs to type `PAYMCARE & PAYMCAID`. 
+
+**Many category values not used - possible error.** Many category values were not used. Was this done on purpose?
+
+In addition to checking the above messages, please verify that the survey design variables are correct. 
+
+# Verify some estimates
+
+Load the survey that you just imported, and check some basic estimates, to see that they make sense. 
+
+```r
+mysurvey = readRDS("namcs_2019_puf.rds")
+```
+
+```{r, echo=FALSE}
+mysurvey = nchsdata::namcs2019
+```
+
+```{r, results=FALSE, message=FALSE, warning=FALSE}
+library(surveytable)
+```
+
+```{r, results='asis'}
+set_survey("mysurvey")
+```
+
+```{r, results='asis'}
+total()
+```
+
+Does the estimate of the total seem correct?
+
+```{r, results='asis'}
+tab("AGER", "SEX")
+```
+
+Do the estimates of a couple of basic variables seem correct?
+
+# What if a specialized import function does not exist?
+
+What if a specialized import function for your survey or data does not exist?
+
+In the `importsurvey` package, all of the `import_sas_*` functions are just short functions that call a function called `import_sas()`. See how the `import_sas_*` functions are written, and try to issue similar commands for the survey that you are trying to import.
+
+The `import_sas_*` functions have 3 main steps, as follows:
+
+1. Call `import_sas()` to convert the SAS survey data file to a data frame with survey data. Schematically, `SAS -> data.frame`.
+
+2. Call `survey::svydesign()` to convert the data frame to a survey design object. Schematically, `data.frame -> survey.design`.
+
+3. Label the survey design object, and save it to an RDS file.
+
+For example, let's examine `import_sas_namcs2019puf` and try to identify these 3 steps.
+
+```{r}
+importsurvey::import_sas_namcs2019puf
+```
+
+Please be sure to read help on `import_sas()`. 
+
+There are a couple of important issues to keep in mind when calling `import_sas()`.
+
+**Converting Yes/No variables to logical variables.** This is an optional step. While you do not need to do this, it makes working with the survey easier.
+
+A variable that has levels listed in the `bool_levels` argument will be converted to a logical variable. 
+
+* By default, `bool_levels = c("yes", "no")`
+* For the RCC SU survey, a more involved value was appropriate, namely, `c("yes", "selected", "no", "not selected", "missing")`.
+
+`bool_true`: of the above values, which should be set to `TRUE`? 
+
+* By default, `bool_true = "yes"`.
+* For the RCC SU survey, `bool_true = c("yes", "selected")`.
+
+Likewise, `bool_false` tells us which of the above values should be set to `FALSE`.
+
+* By default, `bool_false = "no"`.
+* For the RCC SU survey, `bool_false = c("no", "not selected")`.
+
+Any values in `bool_levels` that are **not** in `bool_true` or `bool_false` set to `NA` (missing). Thus, for RCC SU, "missing" is set to `NA`.
+
+**Pairing variables and formats.** You have to tell `import_sas()` which formats go with which variables. You do this with the `formats` argument. 
+
+* `formats = "attr"`: Each variable in the data file has an attribute called `format.sas` with the name of the SAS format. This was used for importing the NAMCS survey.
+
+* `formats = "name"`: The variable name and the format name are the same. This was used for importing the RCC survey.
+
+* `formats = "funcname"`: You have to specify a function in the `formats_func` argument. This function takes the variable name and returns the format name. This was used for importing the RCC SU survey.
+
+For RCC SU, `formats_func = function(name) toupper(paste0(name, "f"))`. That is, when the variable name is `sex`, the format name is `SEXF`.
