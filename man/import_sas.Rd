@@ -11,7 +11,8 @@ import_sas(
   bool_levels = c("yes", "no"),
   bool_true = "yes",
   bool_false = "no",
-  formats_func = NULL
+  formats_func = NULL,
+  keep_unformatted = NULL
 )
 }
 \arguments{
@@ -29,7 +30,10 @@ to \code{TRUE}}
 \item{bool_false}{level(s) of these variables that should be set
 to \code{FALSE}}
 
-\item{formats_func}{only needed if \code{formats} = "funcname"
+\item{formats_func}{only needed if \code{formats} = "funcname"}
+
+\item{keep_unformatted}{vector of variable names. Create unformatted versions
+of these variables.
 
 The argument \code{formats} determines how formats are specified:
 \itemize{

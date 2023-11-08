@@ -30,6 +30,8 @@ import_sas_namcs2019puf = function(sas_data, sas_formats_data, r_out,
                   , bool_levels = c("yes", "no")
                   , bool_true = "yes"
                   , bool_false = "no"
+                  , keep_unformatted = c("DIAG1", "DIAG2", "DIAG3"
+                    , "DIAG4", "DIAG5")
                   )
 
   sdo = svydesign(ids = ~ CPSUM

@@ -2,7 +2,7 @@
 title: "How to import survey data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{How-to-import-survey-data}
+  %\VignetteIndexEntry{How to import survey data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,13 +16,15 @@ knitr::opts_chunk$set(
 
 This article describes how to import survey data from SAS into R. Non-survey data can be imported as well. 
 
+Generally speaking, you only need to import a data system from SAS into R once. After it has been imported, use the R version of the data, and share it with others.
+
 # SAS data file
 
-The first step is to obtain the SAS data file that you would like to import. In this example, we will use a file called `namcs2019_sas.sas7bdat`. This is the SAS data file for the National Ambulatory Medical Care Survey (NAMCS) 2019 Public Use File (PUF). For more information, see `nchsdata::namcs2019`. The data file can be obtained here: https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/NAMCS/sas/namcs2019_sas.zip
+The first step is to obtain the SAS data file that you would like to import. In this example, we will use a file called `namcs2019_sas.sas7bdat`. This is the SAS data file for the National Ambulatory Medical Care Survey (NAMCS) 2019 Public Use File (PUF). For more information, and the location from which this SAS data file can be downloaded, see `nchsdata::namcs2019`. 
 
 # SAS formats data file
 
-Next, you need to create a SAS formats data file. This is a SAS data file with information about formats. It should not be confused with a SAS catalog file. This formats data file is generated in SAS using the `PROC FORMAT` command with the `CNTLOUT` option, as follows:
+Next, you need to create a SAS formats data file. This is a SAS data file with information about formats; it should not be confused with a SAS catalog file. This formats data file is generated in SAS using the `PROC FORMAT` command with the `CNTLOUT` option, as follows:
 
 ```SAS
 LIBNAME project 'c:\output';
@@ -61,9 +63,10 @@ If a specialized function does not already exist, we will cover that scenario be
 # Use the specialized function
 
 Specify the following information:
+
 * the SAS survey data file
 * the SAS formats data file
-* the name of an `.rds` file to be created
+* the name of an `.rds` file to be created. This file can be read later with `readRDS()`.
 * a short name for the survey
 
 ```r
@@ -74,7 +77,7 @@ import_sas_namcs2019puf(sas_data = "namcs2019_sas.sas7bdat"
 ```
 The survey name, specified by the `label` argument, is important. It is used by functions in the `surveytable` package to allow the user to verify that they are analyzing the correct survey. 
 
-The above command will likely print some messages. Check all messages to see whether anything is unexpected, which could indicate a mistake. 
+The above command will likely print some messages that list certain kinds of variables. Check all messages to see whether anything is unexpected, which could indicate a mistake.
 
 **Variables that have no format.** Did you intend for these variables to not have a format? In this list, you expect to see survey design variables (such as `PATWT`) and numeric variables (such as `NUMMED`).
 
@@ -109,25 +112,33 @@ mysurvey = readRDS("namcs_2019_puf.rds")
 mysurvey = nchsdata::namcs2019
 ```
 
+```{r}
+class(mysurvey)
+```
+
+This is a survey design object. It can be analyzed using the `survey` or the `surveytable` packages.
+
 ```{r, results=FALSE, message=FALSE, warning=FALSE}
 library(surveytable)
 ```
 
-```{r, results='asis'}
+```{r}
 set_survey("mysurvey")
 ```
+
+Verify survey name, survey design variables, and the number of observations.
+
+Does the estimate of the total seem correct?
 
 ```{r, results='asis'}
 total()
 ```
 
-Does the estimate of the total seem correct?
+Do the estimates of a couple of basic variables seem correct?
 
 ```{r, results='asis'}
 tab("AGER", "SEX")
 ```
-
-Do the estimates of a couple of basic variables seem correct?
 
 # What if a specialized import function does not exist?
 

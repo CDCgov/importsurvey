@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">importsurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,6 +79,9 @@
     
 <p>This article describes how to import survey data from SAS into R.
 Non-survey data can be imported as well.</p>
+<p>Generally speaking, you only need to import a data system from SAS
+into R once. After it has been imported, use the R version of the data,
+and share it with others.</p>
 <div class="section level2">
 <h2 id="sas-data-file">SAS data file<a class="anchor" aria-label="anchor" href="#sas-data-file"></a>
 </h2>
@@ -86,14 +89,14 @@ Non-survey data can be imported as well.</p>
 import. In this example, we will use a file called
 <code>namcs2019_sas.sas7bdat</code>. This is the SAS data file for the
 National Ambulatory Medical Care Survey (NAMCS) 2019 Public Use File
-(PUF). For more information, see <code><a href="https://cdcgov.github.io/nchsdata/reference/namcs2019.html" class="external-link">nchsdata::namcs2019</a></code>. The
-data file can be obtained here: <a href="https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/NAMCS/sas/namcs2019_sas.zip" class="external-link uri">https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/NAMCS/sas/namcs2019_sas.zip</a></p>
+(PUF). For more information, and the location from which this SAS data
+file can be downloaded, see <code><a href="https://cdcgov.github.io/nchsdata/reference/namcs2019.html" class="external-link">nchsdata::namcs2019</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="sas-formats-data-file">SAS formats data file<a class="anchor" aria-label="anchor" href="#sas-formats-data-file"></a>
 </h2>
 <p>Next, you need to create a SAS formats data file. This is a SAS data
-file with information about formats. It should not be confused with a
+file with information about formats; it should not be confused with a
 SAS catalog file. This formats data file is generated in SAS using the
 <code>PROC FORMAT</code> command with the <code>CNTLOUT</code> option,
 as follows:</p>
@@ -137,9 +140,14 @@ scenario below.</p>
 <div class="section level2">
 <h2 id="use-the-specialized-function">Use the specialized function<a class="anchor" aria-label="anchor" href="#use-the-specialized-function"></a>
 </h2>
-<p>Specify the following information: * the SAS survey data file * the
-SAS formats data file * the name of an <code>.rds</code> file to be
-created * a short name for the survey</p>
+<p>Specify the following information:</p>
+<ul>
+<li>the SAS survey data file</li>
+<li>the SAS formats data file</li>
+<li>the name of an <code>.rds</code> file to be created. This file can
+be read later with <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code>.</li>
+<li>a short name for the survey</li>
+</ul>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/import_sas_namcs2019puf.html">import_sas_namcs2019puf</a></span><span class="op">(</span>sas_data <span class="op">=</span> <span class="st">"namcs2019_sas.sas7bdat"</span></span>
 <span>, sas_formats_data <span class="op">=</span> <span class="st">"namcs_formats_dataset.sas7bdat"</span></span>
@@ -149,9 +157,9 @@ created * a short name for the survey</p>
 important. It is used by functions in the <code>surveytable</code>
 package to allow the user to verify that they are analyzing the correct
 survey.</p>
-<p>The above command will likely print some messages. Check all messages
-to see whether anything is unexpected, which could indicate a
-mistake.</p>
+<p>The above command will likely print some messages that list certain
+kinds of variables. Check all messages to see whether anything is
+unexpected, which could indicate a mistake.</p>
 <p><strong>Variables that have no format.</strong> Did you intend for
 these variables to not have a format? In this list, you expect to see
 survey design variables (such as <code>PATWT</code>) and numeric
@@ -208,48 +216,29 @@ estimates, to see that they make sense.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mysurvey</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"namcs_2019_puf.rds"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://cdcgov.github.io/surveytable" class="external-link">surveytable</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">mysurvey</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "survey.design2" "survey.design"</span></span></code></pre></div>
+<p>This is a survey design object. It can be analyzed using the
+<code>survey</code> or the <code>surveytable</code> packages.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://cdcgov.github.io/surveytable" class="external-link">surveytable</a></span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://cdcgov.github.io/surveytable/reference/set_survey.html" class="external-link">set_survey</a></span><span class="op">(</span><span class="st">"mysurvey"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; * Analyzing NAMCS 2019 PUF</span></span></code></pre></div>
-Stratified 1 - level Cluster Sampling design (with replacement) With
-(398) clusters. svydesign(ids = ~CPSUM, strata = ~CSTRATM, weights =
-~PATWT, data = d1)
-<table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-4">
-<caption style="caption-side: top; text-align: center;">
-Data summary {NAMCS 2019 PUF}
-</caption>
-<col>
-<col>
-<tr>
-<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0.4pt 0.4pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">
-What
-</th>
-<th style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0.4pt 0.4pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">
-Value
-</th>
-</tr>
-<tr>
-<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0.4pt 0.4pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">
-Number of variables
-</td>
-<td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0.4pt 0.4pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">
-1,095
-</td>
-</tr>
-<tr>
-<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0.4pt 0.4pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">
-Number of observations
-</td>
-<td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0.4pt 0.4pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">
-8,250
-</td>
-</tr>
-</table>
-<pre><code><span><span class="co">#&gt; * To adjust how counts are rounded, see ?set_count_int</span></span></code></pre>
+<span><span class="co">#&gt;                        _             </span></span>
+<span><span class="co">#&gt; Survey name            NAMCS 2019 PUF</span></span>
+<span><span class="co">#&gt; Number of variables    1100          </span></span>
+<span><span class="co">#&gt; Number of observations 8250          </span></span>
+<span><span class="co">#&gt; Stratified 1 - level Cluster Sampling design (with replacement)</span></span>
+<span><span class="co">#&gt; With (398) clusters.</span></span>
+<span><span class="co">#&gt; svydesign(ids = ~CPSUM, strata = ~CSTRATM, weights = ~PATWT, </span></span>
+<span><span class="co">#&gt;     data = d1)</span></span>
+<span><span class="co">#&gt; * To adjust how counts are rounded, see ?set_count_int</span></span></code></pre></div>
+<p>Verify survey name, survey design variables, and the number of
+observations.</p>
+<p>Does the estimate of the total seem correct?</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://cdcgov.github.io/surveytable/reference/total.html" class="external-link">total</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-5">
+<table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-6">
 <caption style="caption-side: top; text-align: center;">
 Total {NAMCS 2019 PUF}
 </caption>
@@ -291,10 +280,10 @@ UL (000)
 </td>
 </tr>
 </table>
-<p>Does the estimate of the total seem correct?</p>
+<p>Do the estimates of a couple of basic variables seem correct?</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://cdcgov.github.io/surveytable/reference/tab.html" class="external-link">tab</a></span><span class="op">(</span><span class="st">"AGER"</span>, <span class="st">"SEX"</span><span class="op">)</span></span></code></pre></div>
-<table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-6">
+<table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-7">
 <caption style="caption-side: top; text-align: center;">
 Patient age recode {NAMCS 2019 PUF}
 </caption>
@@ -516,7 +505,7 @@ Under 15 years
 </td>
 </tr>
 </table>
-<table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-6">
+<table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-7">
 <caption style="caption-side: top; text-align: center;">
 Patient sex {NAMCS 2019 PUF}
 </caption>
@@ -622,7 +611,6 @@ Male
 </td>
 </tr>
 </table>
-<p>Do the estimates of a couple of basic variables seem correct?</p>
 </div>
 <div class="section level2">
 <h2 id="what-if-a-specialized-import-function-does-not-exist">What if a specialized import function does not exist?<a class="anchor" aria-label="anchor" href="#what-if-a-specialized-import-function-does-not-exist"></a>
@@ -656,7 +644,9 @@ try to identify these 3 steps.</p>
 <span><span class="co">#&gt;         r_out, " already exists."))</span></span>
 <span><span class="co">#&gt;     assert_that(is.string(label), nzchar(label))</span></span>
 <span><span class="co">#&gt;     d1 = import_sas(sas_data, sas_formats_data, formats = "attr", </span></span>
-<span><span class="co">#&gt;         bool_levels = c("yes", "no"), bool_true = "yes", bool_false = "no")</span></span>
+<span><span class="co">#&gt;         bool_levels = c("yes", "no"), bool_true = "yes", bool_false = "no", </span></span>
+<span><span class="co">#&gt;         keep_unformatted = c("DIAG1", "DIAG2", "DIAG3", "DIAG4", </span></span>
+<span><span class="co">#&gt;             "DIAG5"))</span></span>
 <span><span class="co">#&gt;     sdo = svydesign(ids = ~CPSUM, strata = ~CSTRATM, weights = ~PATWT, </span></span>
 <span><span class="co">#&gt;         data = d1)</span></span>
 <span><span class="co">#&gt;     attr(sdo, "label") = label</span></span>
@@ -665,7 +655,7 @@ try to identify these 3 steps.</p>
 <span><span class="co">#&gt;     print(sdo)</span></span>
 <span><span class="co">#&gt;     saveRDS(sdo, r_out)</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x0000000018e005a8&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x0000000018c84398&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:importsurvey&gt;</span></span></code></pre></div>
 <p>Please be sure to read help on <code><a href="../reference/import_sas.html">import_sas()</a></code>.</p>
 <p>There are a couple of important issues to keep in mind when calling

@@ -3,7 +3,7 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   How-to-import-survey-data: How-to-import-survey-data.html
-last_built: 2023-11-02T19:20Z
+last_built: 2023-11-08T17:42Z
 urls:
   reference: https://cdcgov.github.io/importsurvey/reference
   article: https://cdcgov.github.io/importsurvey/articles

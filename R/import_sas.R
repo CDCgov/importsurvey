@@ -9,6 +9,8 @@
 #' @param bool_false level(s) of these variables that should be set
 #' to `FALSE`
 #' @param formats_func only needed if `formats` = "funcname"
+#' @param keep_unformatted vector of variable names. Create unformatted versions
+#' of these variables.
 #'
 #' The argument `formats` determines how formats are specified:
 #' * "attr": in `attr(*, "format.sas")`
@@ -32,6 +34,7 @@ import_sas = function(sas_data, sas_formats_data, formats
               , bool_true = "yes"
               , bool_false = "no"
               , formats_func = NULL
+              , keep_unformatted = NULL
               ) {
   assert_that(formats %in% c("attr", "name", "funcname"))
   if (formats == "funcname") assert_that(is.function(formats_func))
@@ -40,6 +43,7 @@ import_sas = function(sas_data, sas_formats_data, formats
   bool_false %<>% tolower %>% trimws
   assert_that(all(bool_true %in% bool_levels)
               , all(bool_false %in% bool_levels))
+  keep_unformatted %<>% tolower %>% trimws
 
   df1 = read_sas(sas_formats_data) %>% as.data.frame
   assert_that(all(df1$START == df1$END))
@@ -49,7 +53,7 @@ import_sas = function(sas_data, sas_formats_data, formats
   assert_that( noNA(df1))
 
   d1 = read_sas(sas_data) %>% as.data.frame
-  c.nofmt = c.2v = c.log = c.fewf = c()
+  c.nofmt = c.2v = c.log = c.fewf = c.ku = c()
   for (ii in names(d1)) {
     fmt = switch(formats
                  , attr = attr(d1[,ii], "format.sas")
@@ -60,7 +64,7 @@ import_sas = function(sas_data, sas_formats_data, formats
     if ( (formats == "attr" && is.null(fmt))
          || (formats %in% c("name", "funcname") && !(fmt %in% df1$FMTNAME) ) ) {
       c.nofmt %<>% c(ii)
-      d1[,ii] %<>% .c2f
+      # d1[,ii] %<>% .c2f
       next
     }
     if (fmt %>% startsWith("$")) {
@@ -77,6 +81,16 @@ import_sas = function(sas_data, sas_formats_data, formats
         if (is.numeric(d1[,ii])) {
           f1$START %<>% as.numeric %>% suppressWarnings
         }
+
+        if (isTRUE(tolower(ii) %in% keep_unformatted)) {
+          vn = paste0(ii, ".unformatted")
+          assert_that(!(vn %in% names(d1)))
+          d1[,vn] = d1[,ii]
+          attr(d1[,vn], "label") = paste(lbl, "(unformatted)")
+          assert_that( noNA(d1[,vn]))
+          c.ku %<>% c(ii)
+        }
+
         if (is_subset(unique(d1[,ii]), f1$START)) {
           # Normal
           d1[,ii] %<>% factor(
@@ -173,9 +187,13 @@ import_sas = function(sas_data, sas_formats_data, formats
     tmp = c.fewf %>% paste(collapse=", ")
     paste("\nMany category values not used - possible error:", tmp) %>% message
   }
+  if (length(c.ku) > 0) {
+    tmp = c.ku %>% paste(collapse=", ")
+    paste("\nCreated unformatted versions at your request:", tmp) %>% message
+  }
 
   assert_that(
-    all(d1 %>% sapply(class) %in% c("factor", "logical", "numeric"))
+    all(d1 %>% sapply(class) %in% c("factor", "logical", "numeric", "character"))
   )
   invisible(d1)
 }

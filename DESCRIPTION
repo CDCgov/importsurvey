@@ -1,6 +1,6 @@
 Package: importsurvey
 Title: Import data into R, with an application to the National Center for Health Statistics (NCHS)
-Version: 0.5
+Version: 0.9
 Authors@R: 
     person("Alex", "Strashny", , "AStrashny@cdc.gov", role = c("aut", "cre"))
 Description: Import data into R, with an application to the National Center for Health Statistics (NCHS).
