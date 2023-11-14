@@ -16,10 +16,8 @@ stored in `nchsdata`. The imported surveys can be analyzed using the
 You can install `importsurvey` like so:
 
 ``` r
-install.packages("remotes")
-remotes::install_git(
-    url = "https://github.com/CDCgov/importsurvey"
-    , upgrade = "never")
+install.packages(c("remotes", "git2r"))
+remotes::install_github("CDCgov/importsurvey", upgrade = "never")
 ```
 
 ## Documentation

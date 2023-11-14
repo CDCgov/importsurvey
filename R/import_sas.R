@@ -171,25 +171,25 @@ import_sas = function(sas_data, sas_formats_data, formats
     }
   }
 
-  if (length(c.nofmt) > 0) {
-    tmp = c.nofmt %>% paste(collapse=", ")
-    paste("\nVariables that have no format:", tmp) %>% message
-  }
   if (length(c.2v) > 0) {
     tmp = c.2v %>% paste(collapse=", ")
     paste("\nFormat applies only to some values, created multiple version of variable:", tmp) %>% message
   }
   if (length(c.log) > 0) {
     tmp = c.log %>% paste(collapse=", ")
-    paste("\nYes/no variable - converted to logical:", tmp) %>% message
-  }
-  if (length(c.fewf) > 0) {
-    tmp = c.fewf %>% paste(collapse=", ")
-    paste("\nMany category values not used - possible error:", tmp) %>% message
+    paste("\nYes / no variable - converted to logical:", tmp) %>% message
   }
   if (length(c.ku) > 0) {
     tmp = c.ku %>% paste(collapse=", ")
     paste("\nCreated unformatted versions at your request:", tmp) %>% message
+  }
+  if (length(c.nofmt) > 0) {
+    tmp = c.nofmt %>% paste(collapse=", ")
+    paste("\nVariables that have no format:", tmp) %>% message
+  }
+  if (length(c.fewf) > 0) {
+    tmp = c.fewf %>% paste(collapse=", ")
+    paste("\nMany category values not used - possible error:", tmp) %>% message
   }
 
   assert_that(
